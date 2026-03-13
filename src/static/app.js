@@ -569,6 +569,15 @@ document.addEventListener("DOMContentLoaded", () => {
         `
         }
       </div>
+      <div class="share-section">
+        <span class="share-label">Share:</span>
+        <div class="share-buttons">
+          <button class="share-btn share-btn-twitter" data-activity="${name}" title="Share on X (Twitter)" aria-label="Share ${name} on X (Twitter)">𝕏</button>
+          <button class="share-btn share-btn-facebook" data-activity="${name}" title="Share on Facebook" aria-label="Share ${name} on Facebook">f</button>
+          <button class="share-btn share-btn-whatsapp" data-activity="${name}" title="Share on WhatsApp" aria-label="Share ${name} on WhatsApp">💬</button>
+          <button class="share-btn share-btn-copy" data-activity="${name}" title="Copy link" aria-label="Copy link for ${name}">🔗</button>
+        </div>
+      </div>
     `;
 
     // Add click handlers for delete buttons
@@ -586,6 +595,68 @@ document.addEventListener("DOMContentLoaded", () => {
         });
       }
     }
+
+    // Add click handlers for share buttons
+    const shareButtons = activityCard.querySelectorAll(".share-btn");
+    shareButtons.forEach((button) => {
+      button.addEventListener("click", (event) => {
+        const activityName = event.currentTarget.dataset.activity;
+        const shareUrl = `${window.location.origin}${window.location.pathname}?activity=${encodeURIComponent(activityName)}`;
+        const shareText = `Check out ${activityName} at Mergington High School!`;
+
+        if (event.currentTarget.classList.contains("share-btn-twitter")) {
+          window.open(
+            `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`,
+            "_blank",
+            "noopener,noreferrer"
+          );
+        } else if (event.currentTarget.classList.contains("share-btn-facebook")) {
+          window.open(
+            `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`,
+            "_blank",
+            "noopener,noreferrer"
+          );
+        } else if (event.currentTarget.classList.contains("share-btn-whatsapp")) {
+          window.open(
+            `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText + " " + shareUrl)}`,
+            "_blank",
+            "noopener,noreferrer"
+          );
+        } else if (event.currentTarget.classList.contains("share-btn-copy")) {
+          const btn = event.currentTarget;
+          if (navigator.clipboard) {
+            navigator.clipboard.writeText(shareUrl).then(() => {
+              btn.textContent = "✓";
+              btn.title = "Link copied!";
+              setTimeout(() => {
+                btn.textContent = "🔗";
+                btn.title = "Copy link";
+              }, 2000);
+            });
+          } else {
+            try {
+              const textarea = document.createElement("textarea");
+              textarea.value = shareUrl;
+              document.body.appendChild(textarea);
+              textarea.select();
+              document.execCommand("copy");
+              document.body.removeChild(textarea);
+              btn.textContent = "✓";
+              setTimeout(() => {
+                btn.textContent = "🔗";
+              }, 2000);
+            } catch (err) {
+              btn.textContent = "✗";
+              btn.title = "Copy failed — please copy the URL manually";
+              setTimeout(() => {
+                btn.textContent = "🔗";
+                btn.title = "Copy link";
+              }, 2000);
+            }
+          }
+        }
+      });
+    });
 
     activitiesList.appendChild(activityCard);
   }
